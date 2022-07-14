@@ -1,7 +1,7 @@
 const { MessageEmbed } = require("discord.js");
 
 module.exports = {
-    name: "test",
+    name: "ship",
     aliases: [],
     description: "Uhhh... Ship someone?",
     usage: "ship [mention or something]",
