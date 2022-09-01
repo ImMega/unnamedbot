@@ -33,8 +33,8 @@ module.exports = {
         message.channel.send({ embeds: [
             new MessageEmbed()
             .setColor(message.guild.me.displayHexColor)
-            .setTitle(mention == message.guild.me.user ? gif.includes("hug17") ? "Sorry, not now" : hugMe[random] : gif.includes("hug17") ? "Umm, that was unexpected" : hugElse[random])
-            .setDescription(`${message.author} gave ${mention == message.guild.me.user ? "me ": `${mention}`} a hug! ${gif.includes("hug17") ? "Or... at least they tried to..." : ""}`)
+            .setTitle(mention == message.guild.me.user ? gif.includes("hug17.gif") ? "Sorry, not now" : hugMe[random] : gif.includes("hug17.gif") ? "Umm, that was unexpected" : hugElse[random])
+            .setDescription(`${message.author} gave ${mention == message.guild.me.user ? "me ": `${mention}`} a hug! ${gif.includes("hug17.gif") ? "Or... at least they tried to..." : ""}`)
             .setImage(gif)
             .setFooter({ text: "Gif provided by: kawaii.red" })
         ] })

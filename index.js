@@ -14,3 +14,4 @@ module.exports = { client, anilist }
 fs.readdirSync("./handlers/").forEach(handler => require(`./handlers/${handler}`)(client));
 
 client.login(process.env.TOKEN);
+require("./randomActivities")(client);
