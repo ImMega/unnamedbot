@@ -8,6 +8,7 @@ const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_
 const anilist = new AniList();
 
 client.prefix = "$";
+client.ownerId = "470277450551656459";
 
 module.exports = { client, anilist }
 
