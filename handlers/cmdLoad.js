@@ -20,7 +20,7 @@ module.exports = (client) => {
                 client.cmdaliases.set(alias, cmd.name);
             });
 
-            if(!folderName == "private") client.categories.find(cat => cat.name == folderName).cmds.push(cmd.name);
+            if(folderName !== "private") client.categories.find(cat => cat.name == folderName).cmds.push(cmd.name);
 
             console.log(`${file} has been loaded successfully!`);
         }
@@ -49,7 +49,7 @@ module.exports = (client) => {
             if(!fileStats.isDirectory()) continue;
 
             folderPathArray.push(file + "/");
-            if(!file == "private") client.categories.push({ name: file, cmds: [] });
+            if(file !== "private") client.categories.push({ name: file, cmds: [] });
 
             filesLoad(folderPathArray, file, false, loadedFolders);
         }
