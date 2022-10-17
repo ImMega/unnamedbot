@@ -15,6 +15,7 @@
     "discord.js": "^13.10.3",
     "dotenv": "^16.0.1",
     "fs": "^0.0.1-security",
-    "mal-scraper": "^2.11.4"
+    "mal-scraper": "^2.11.4",
+    "mongoose": "^6.6.5"
   }
 }
