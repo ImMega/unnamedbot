@@ -13,5 +13,5 @@ module.exports = (client) => {
         if(files.length != 0) console.log(`Event ${dir} files successfully loaded!`);
     }
 
-    ["client", "message"].forEach(event => loadDir(event));
+    ["client", "message", "guild"].forEach(event => loadDir(event));
 }
