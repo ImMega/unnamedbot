@@ -1,11 +1,11 @@
 const a = [
     {
         type: "WATCHING",
-        name: ["anime", "Kimi No Na Wa."]
+        name: ["anime", "Kimi No Na Wa.", "more anime", "even more anime"]
     },
     {
         type: "PLAYING",
-        name: ["DDLC", "Scarlet Nexus"]
+        name: ["DDLC", "Scarlet Nexus", "osu!"]
     },
     {
         type: "LISTENING",
