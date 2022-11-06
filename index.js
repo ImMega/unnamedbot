@@ -21,7 +21,3 @@ mongoose.connect(process.env.MONGO)
 .catch(err => console.log(err));
 
 require("./randomActivities")(client);
-
-// client.on("messageCreate", message => {
-//     message.guild.members.me
-// })
