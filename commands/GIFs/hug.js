@@ -1,4 +1,4 @@
-const { MessageEmbed } = require("discord.js");
+const { EmbedBuilder } = require("discord.js");
 
 const hugElse = [
     "Awww, give me one too",
@@ -28,13 +28,13 @@ module.exports = {
 
         const gif = await require("../../kawaii-api").getGIF("hug");
 
-        const random = Math.floor(Math.random() * (mention == message.guild.me.user ? hugMe.length : hugElse.length));
+        const random = Math.floor(Math.random() * (mention == message.guild.members.me.user ? hugMe.length : hugElse.length));
 
         message.channel.send({ embeds: [
-            new MessageEmbed()
-            .setColor(message.guild.me.displayHexColor)
-            .setTitle(mention == message.guild.me.user ? gif.includes("hug17.gif") ? "Sorry, not now" : hugMe[random] : gif.includes("hug17.gif") ? "Umm, that was unexpected" : hugElse[random])
-            .setDescription(`${message.author} gave ${mention == message.guild.me.user ? "me ": `${mention}`} a hug! ${gif.includes("hug17.gif") ? "Or... at least they tried to..." : ""}`)
+            new EmbedBuilder()
+            .setColor(message.guild.members.me.displayHexColor)
+            .setTitle(mention == message.guild.members.me.user ? gif.includes("hug17.gif") ? "Sorry, not now" : hugMe[random] : gif.includes("hug17.gif") ? "Umm, that was unexpected" : hugElse[random])
+            .setDescription(`${message.author} gave ${mention == message.guild.members.me.user ? "me ": `${mention}`} a hug! ${gif.includes("hug17.gif") ? "Or... at least they tried to..." : ""}`)
             .setImage(gif)
             .setFooter({ text: "Gif provided by: kawaii.red" })
         ] })

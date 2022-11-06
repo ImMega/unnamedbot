@@ -1,11 +1,11 @@
 require("dotenv").config();
 
-const { Client, Intents } = require("discord.js");
+const { Client, GatewayIntentBits } = require("discord.js");
 const fs = require("fs");
 const AniList = require("anilist-node");
 const mongoose = require("mongoose");
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent] });
 const anilist = new AniList();
 
 client.prefix = "$";
@@ -21,3 +21,7 @@ mongoose.connect(process.env.MONGO)
 .catch(err => console.log(err));
 
 require("./randomActivities")(client);
+
+// client.on("messageCreate", message => {
+//     message.guild.members.me
+// })

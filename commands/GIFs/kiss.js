@@ -1,4 +1,4 @@
-const { MessageEmbed } = require("discord.js");
+const { EmbedBuilder } = require("discord.js");
 
 const kissElse = [
     "Lucky them",
@@ -29,10 +29,10 @@ module.exports = {
 
         message.channel.send({
             embeds: [
-                new MessageEmbed()
-                .setColor(message.guild.me.displayHexColor)
-                .setTitle(mention == message.guild.me.user ? gif.includes("kiss11.gif") ? "Well let's- oh" : kissMe[random] : gif.includes("kiss11.gif") ? "Ouch" : kissElse[random])
-                .setDescription(`${message.author} ${gif.includes("kiss11.gif") ? "tried to kiss" : "kissed"} ${mention == message.guild.me.user ? "me??" : `${mention}!`}`)
+                new EmbedBuilder()
+                .setColor(message.guild.members.me.displayHexColor)
+                .setTitle(mention == message.guild.members.me.user ? gif.includes("kiss11.gif") ? "Well let's- oh" : kissMe[random] : gif.includes("kiss11.gif") ? "Ouch" : kissElse[random])
+                .setDescription(`${message.author} ${gif.includes("kiss11.gif") ? "tried to kiss" : "kissed"} ${mention == message.guild.members.me.user ? "me??" : `${mention}!`}`)
                 .setImage(gif)
                 .setFooter({ text: "Gif provided by: kawaii.red" })
             ]

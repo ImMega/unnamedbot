@@ -1,4 +1,4 @@
-const { MessageEmbed } = require("discord.js");
+const { EmbedBuilder } = require("discord.js");
 const { anilist } = require("../../index");
 
 module.exports = {
@@ -14,8 +14,8 @@ module.exports = {
         console.log(user);
         console.log(user.favourites.anime);
 
-        const embed = new MessageEmbed()
-        .setColor(message.guild.me.displayHexColor)
+        const embed = new EmbedBuilder()
+        .setColor(message.guild.members.me.displayHexColor)
         .setTitle(user.name)
         .setDescription("\u200b")
         .setURL(user.siteUrl)

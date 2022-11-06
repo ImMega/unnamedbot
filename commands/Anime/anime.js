@@ -1,4 +1,4 @@
-const { MessageEmbed, MessageActionRow, MessageButton } = require("discord.js");
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder } = require("discord.js");
 const MAL = require("mal-scraper");
 const { anilist } = require("../../index");
 
@@ -20,8 +20,8 @@ module.exports = {
 
         image = ALanime.bannerImage;
 
-        const embed = new MessageEmbed()
-        .setColor(message.guild.me.displayHexColor)
+        const embed = new EmbedBuilder()
+        .setColor(message.guild.members.me.displayHexColor)
         .setTitle(anime.title)
         .setThumbnail(anime.picture)
         .addFields([
@@ -39,8 +39,8 @@ module.exports = {
         .setImage(image)
         .setFooter({ text: "Powered by: myanimelist.net (Banner from: anilist.co)" });
 
-        const row = (disabled) => {return new MessageActionRow()
-        .addComponents(new MessageButton().setCustomId("desc").setLabel("Description").setStyle("PRIMARY").setDisabled(disabled))}
+        const row = (disabled) => {return new ActionRowBuilder()
+        .addComponents(new ButtonBuilder().setCustomId("desc").setLabel("Description").setStyle("Primary").setDisabled(disabled))}
 
         const reply = await message.channel.send({ embeds: [embed], components: [row(false)] });
 
@@ -55,8 +55,8 @@ module.exports = {
                 if(p == "main") {
                     await i.update({
                         embeds: [
-                            new MessageEmbed()
-                            .setColor(message.guild.me.displayHexColor)
+                            new EmbedBuilder()
+                            .setColor(message.guild.members.me.displayHexColor)
                             .setTitle(anime.title)
                             .setDescription(anime.synopsis)
                             .setThumbnail(anime.picture)

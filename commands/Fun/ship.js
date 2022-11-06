@@ -1,4 +1,4 @@
-const { MessageEmbed } = require("discord.js");
+const { EmbedBuilder } = require("discord.js");
 
 module.exports = {
     name: "ship",
@@ -32,7 +32,7 @@ module.exports = {
             message.channel.send({
                 content: `💗 **MATCHMAKING** 💗\n🔻 _\`${name}\`_\n🔺 _\`${humans[random]}\`_`,
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                     .setColor(0xFF69B4)
                     .setDescription("<:name:997088413687758888> **" + name.slice(0, (name.length/2).toFixed(0)) + humans[random].slice(((humans[random].length/2).toString().includes(".5") ? (humans[random].length/2).toFixed(0) - 1 : (humans[random].length/2).toFixed(0)))
                                     + `**\n**${match}%** ` + `${bar.join("")}` + ` ${text}`)
@@ -53,7 +53,7 @@ module.exports = {
                     message.channel.send({
                         content: `💗 **MATCHMAKING** 💗\n🔻 _\`${args[0]}\`_\n🔺 _\`${args[1]}\`_`,
                         embeds: [
-                            new MessageEmbed()
+                            new EmbedBuilder()
                             .setColor(0xFF69B4)
                             .setDescription("<:name:997088413687758888> **" + args[0].slice(0, (args[0].length/2).toFixed(0)) + args[1].slice(((args[1].length/2).toString().includes(".5") ? (args[1].length/2).toFixed(0) - 1 : (args[1].length/2).toFixed(0)))
                                             + `**\n**${match}%** ` + `${bar.join("")}` + ` ${text}`)
@@ -72,7 +72,7 @@ module.exports = {
                     message.channel.send({
                         content: `💗 **MATCHMAKING** 💗\n🔻 _\`${name}\`_\n🔺 _\`${args[0]}\`_`,
                         embeds: [
-                            new MessageEmbed()
+                            new EmbedBuilder()
                             .setColor(0xFF69B4)
                             .setDescription("<:name:997088413687758888> **" + name.slice(0, (name.length/2).toFixed(0)) + args[0].slice(((args[0].length/2).toString().includes(".5") ? (args[0].length/2).toFixed(0) - 1 : (args[0].length/2).toFixed(0)))
                                             + `**\n**${match}%** ` + `${bar.join("")}` + ` ${text}`)
@@ -93,7 +93,7 @@ module.exports = {
                 message.channel.send({
                     content: `💗 **MATCHMAKING** 💗\n🔻 _\`${name}\`_\n🔺 _\`${mention}\`_`,
                     embeds: [
-                        new MessageEmbed()
+                        new EmbedBuilder()
                         .setColor(0xFF69B4)
                         .setDescription("<:name:997088413687758888> **" + name.slice(0, (name.length/2).toFixed(0)) + mention.slice(((mention.length/2).toString().includes(".5") ? (mention.length/2).toFixed(0) - 1 : (mention.length/2).toFixed(0)))
                                         + `**\n**${match}%** ` + `${bar.join("")}` + ` ${text}`)
@@ -103,7 +103,7 @@ module.exports = {
         }
     },
 
-    async progressBar(percent) {console.log("a")
+    async progressBar(percent) {
         const bar = [];
 
         for(let i = 0; i < 10; i++){

@@ -1,4 +1,4 @@
-const { MessageEmbed } = require("discord.js");
+const { EmbedBuilder } = require("discord.js");
 const jikan = require("@mateoaranda/jikanjs");
 
 module.exports = {
@@ -13,8 +13,8 @@ module.exports = {
 
         const user = await jikan.loadUser(query, "full");
 
-        const embed = new MessageEmbed()
-        .setColor(message.guild.me.displayHexColor)
+        const embed = new EmbedBuilder()
+        .setColor(message.guild.members.me.displayHexColor)
         .setTitle(user.data.username)
         .setDescription("\u200b")
         .setURL(user.data.url)
