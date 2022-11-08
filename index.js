@@ -7,7 +7,6 @@ const mongoose = require("mongoose");
 const { DisTube } = require("distube");
 const { SpotifyPlugin } = require('@distube/spotify');
 const { SoundCloudPlugin } = require('@distube/soundcloud');
-const { YtDlpPlugin } = require("@distube/yt-dlp");
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates] });
 const anilist = new AniList();
@@ -19,8 +18,7 @@ const distube = new DisTube(client, {
     },
     plugins: [
       new SpotifyPlugin(),
-      new SoundCloudPlugin(),
-      new YtDlpPlugin()
+      new SoundCloudPlugin()
     ]
 });
 
