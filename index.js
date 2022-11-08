@@ -25,7 +25,7 @@ const distube = new DisTube(client, {
 client.prefix = "$";
 client.ownerId = "470277450551656459";
 
-client.developing = true;
+client.developing = false;
 
 module.exports = { client, anilist, distube }
 
