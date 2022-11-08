@@ -9,12 +9,18 @@
   "author": "Yamega",
   "license": "ISC",
   "dependencies": {
+    "@discordjs/opus": "^0.8.0",
+    "@discordjs/voice": "^0.13.0",
+    "@distube/soundcloud": "^1.2.2",
+    "@distube/spotify": "^1.4.2",
     "@mateoaranda/jikanjs": "^1.2.4",
     "anilist-node": "^1.12.1",
     "axios": "^0.27.2",
     "discord.js": "^14.6.0",
+    "distube": "^4.0.4",
     "dotenv": "^16.0.1",
     "fs": "^0.0.1-security",
+    "libsodium-wrappers": "^0.7.10",
     "mal-scraper": "^2.11.4",
     "mongoose": "^6.6.5"
   }
