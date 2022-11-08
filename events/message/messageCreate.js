@@ -10,6 +10,7 @@ const checkCount = async (message) => {
 }
 
 module.exports = async (client, message) => {
+    if(client.developing && message.author.id != "470277450551656459") return;
     checkCount(message);
 
     if(!message.content.startsWith(client.prefix) || message.author.bot) return;
