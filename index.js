@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-const { Client, GatewayIntentBits } = require("discord.js");
+const { Client, GatewayIntentBits, ActivityType } = require("discord.js");
 const fs = require("fs");
 const AniList = require("anilist-node");
 const mongoose = require("mongoose");
@@ -36,4 +36,4 @@ mongoose.connect(process.env.MONGO)
 .then(() => console.log("Connected to database!"))
 .catch(err => console.log(err));
 
-require("./randomActivities")(client);
+require("./randomActivities")(client, ActivityType);
