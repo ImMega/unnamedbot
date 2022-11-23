@@ -12,6 +12,9 @@ module.exports = {
         const query = args.join(" ");
 
         const charSearch = await anilist.searchEntry.character(query, 1, 1);
+        
+        if(charSearch.characters.length < 1) return message.reply("Sorry, I couldn't find anything... Maybe you misspelled it?");
+
         const character = await anilist.people.character(charSearch.characters[0].id);
 
         let animeCount = 0;
