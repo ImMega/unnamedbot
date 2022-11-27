@@ -34,6 +34,11 @@ module.exports = {
             await profileModel.findOneAndUpdate({ userId: message.author.id }, { mal: malUser.data.username });
     
             message.reply(`You're now successfully binded to your MAL profile **${malUser.data.username}**!`);
-        } catch(err) { console.log(err) }
+        } catch(err) {
+            console.log(err);
+            
+            if(err.toString().includes("404")) return message.reply("Sorry, couldn't find anything...");
+            if(err.toString().includes("Idle timeout reached")) return message.reply("Sorry, MAL kinda didn't respond on time. You can try again if you want");
+        }
     }
 }
