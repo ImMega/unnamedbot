@@ -1,5 +1,6 @@
 const { EmbedBuilder } = require("discord.js");
 const jikan = require("@mateoaranda/jikanjs");
+const profileModel = require("../../models/profileSchema");
 
 module.exports = {
     name: "malprofile",
@@ -7,13 +8,33 @@ module.exports = {
     description: "Searches for a MAL user",
     usage: "malprofile <username>",
     async execute(message, args) {
-        if(!args[0]) return message.reply({ content: "You have to enter an user to search", allowedMentions: { repliedUser: false } });
+        if(!args[0]) {
+            const profile = await profileModel.findOne({ userId: message.author.id });
 
-        const query = args.join(" ");
+            if(!profile || !profile.mal) return message.reply("You have to search for a user or bind your own profile!")
 
+            await this.malGetAndSendEmbed(message, profile.mal);
+        } else {
+            const mention = message.mentions.users.first();
+
+            if(mention) {
+                const profile = await profileModel.findOne({ userId: mention.id });
+
+                if(!profile || !profile.mal) return message.reply("That person doesn't have their MAL binded.");
+
+                await this.malGetAndSendEmbed(message, profile.mal);
+            } else {
+                const query = args[0];
+
+                await this.malGetAndSendEmbed(message, query);
+            }
+        }
+    },
+    async malGetAndSendEmbed(message, query) {
         try {
             const user = await jikan.loadUser(query, "full");
 
+            if(user.status) throw user.status;
 
             const embed = new EmbedBuilder()
             .setColor(message.guild.members.me.displayHexColor)
@@ -29,6 +50,11 @@ module.exports = {
             .setFooter({ text: "Powered by: myanimelist.net" })
 
             message.channel.send({ embeds: [embed] });
-        } catch(err) { console.log(err) }
+        } catch(err) {
+            console.log(err);
+            
+            if(err.toString().includes("404")) return message.reply("Sorry, couldn't find anything...");
+            if(err.toString().includes("Idle timeout reached")) return message.reply("Sorry, MAL kinda didn't respond on time. You can try again if you want");
+        }
     }
 }
