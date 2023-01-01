@@ -127,6 +127,5 @@ dist
 .pnp.*
 
 # unneccessary package files
-package-lock.json
 
 slash deploying
