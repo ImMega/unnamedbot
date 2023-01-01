@@ -20,7 +20,7 @@ module.exports = async (client, message) => {
 
     const cmd = client.commands.get(command) || client.commands.get(client.cmdaliases.get(command));
 
-    if(cmd) cmd.execute(message, args);
+    if(cmd) cmd.msgInit(message, args);
 
 
     let serverData;

@@ -1,19 +1,50 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder } = require("discord.js");
-const { anilist } = require("../../index");
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ApplicationCommandOptionType } = require("discord.js");
+
+const name = "character";
+const desc = "Search for an anime character";
 
 module.exports = {
-    name: "character",
+    name: name,
     aliases: ["char"],
-    description: "Search for an anime character",
-    usage: "character [name]",
-    async execute(message, args){
-        if(!args[0]) return message.reply({ content: "You have to enter name of a character to search", allowedMentions: { repliedUser: false } });
+    description: desc,
+    usage: "character <name>",
+    slash: {
+        name: name,
+        description: desc,
+        options: [
+            {
+                name: "name",
+                type: ApplicationCommandOptionType.String,
+                description: "Name of the character",
+                required: true
+            }
+        ]
+    },
 
+    async interactionInit(interaction) {
+        await interaction.deferReply();
+
+        const id = interaction.user.id;
+        const query = interaction.options.getString("name");
+
+        this.execute(interaction, id, query, 1)
+    },
+
+    async msgInit(message, args) {
+        const id = message.author.id;
         const query = args.join(" ");
+
+        this.execute(message, id, query, 0);
+    },
+
+    async execute(message, id, query, type){
+        const { anilist } = require("../../index");
+        
+        if(!query) return this.reply.reply(message, type, { content: "You have to enter name of a character to search", allowedMentions: { repliedUser: false } });
 
         const charSearch = await anilist.searchEntry.character(query, 1, 1);
         
-        if(charSearch.characters.length < 1) return message.reply("Sorry, I couldn't find anything... Maybe you misspelled it?");
+        if(charSearch.characters.length < 1) return this.reply.reply(message, type, { content: "Sorry, I couldn't find anything... Maybe you misspelled it?" });
 
         const character = await anilist.people.character(charSearch.characters[0].id);
 
@@ -56,9 +87,9 @@ module.exports = {
         .setURL(character.siteUrl)
         .setFooter({ text: "Powered by: anilist.co" });
 
-        const reply = await message.channel.send({ embeds: [embed], components: [row(false)] });
+        const reply = await this.reply.send(message, type, { embeds: [embed], components: [row(false)] });
 
-        const filter = i => i.user.id == message.author.id;
+        const filter = i => i.user.id == id;
 
         const collector = await reply.createMessageComponentCollector({ filter, time: 15000 });
 
@@ -110,5 +141,22 @@ module.exports = {
         collector.on("end", async collected => {
             await reply.edit({ components: [row(true)] });
         });
+    },
+
+    reply: {
+        async send(message, type, content) {
+            if(!type) {
+                return message.channel.send(content);
+            } else {
+                return message.editReply(content);
+            }
+        },
+        async reply(message, type, content) {
+            if(!type) {
+                return message.reply(content);
+            } else {
+                return message.editReply(content);
+            }
+        }
     }
 }

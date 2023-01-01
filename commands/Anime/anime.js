@@ -1,16 +1,47 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder } = require("discord.js");
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ApplicationCommandOptionType } = require("discord.js");
 const MAL = require("mal-scraper");
-const { anilist } = require("../../index");
+
+const name = "anime";
+const desc = "Searches for an anime";
 
 module.exports = {
-    name: "anime",
+    name: name,
     aliases: [],
-    description: "Searches for an anime",
+    description: desc,
     usage: "anime <title>",
-    async execute(message, args) {
-        if(!args[0]) return message.reply({ content: "You have to enter an anime to search", allowedMentions: { repliedUser: false } });
+    slash: {
+        name: name,
+        description: desc,
+        options: [
+            {
+                name: "title",
+                type: ApplicationCommandOptionType.String,
+                description: "Title of an anime",
+                required: true
+            }
+        ]
+    },
 
+    async interactionInit(interaction) {
+        await interaction.deferReply();
+
+        const id = interaction.user.id;
+        const query = interaction.options.getString("title");
+
+        this.execute(interaction, id, query, 1)
+    },
+
+    async msgInit(message, args) {
+        const id = message.author.id;
         const query = args.join(" ");
+
+        this.execute(message, id, query, 0);
+    },
+
+    async execute(message, id, query, type) {
+        const { anilist } = require("../../index");
+
+        if(!query) return this.reply.reply(message, type, { content: "You have to enter an anime to search", allowedMentions: { repliedUser: false } })
 
         const anime = await MAL.getInfoFromName(query);
         const ALsearch = await anilist.searchEntry.anime(anime.title, { sort: ["POPULARITY_DESC"] }, 1, 1);
@@ -42,9 +73,9 @@ module.exports = {
         const row = (disabled) => {return new ActionRowBuilder()
         .addComponents(new ButtonBuilder().setCustomId("desc").setLabel("Description").setStyle("Primary").setDisabled(disabled))}
 
-        const reply = await message.channel.send({ embeds: [embed], components: [row(false)] });
+        const reply = await this.reply.send(message, type, { embeds: [embed], components: [row(false)] });
 
-        const filter = i => i.customId === "desc" && i.user.id === message.author.id;
+        const filter = i => i.customId === "desc" && i.user.id === id;
 
         const collector = await reply.createMessageComponentCollector({ filter, time: 15000 });
 
@@ -77,5 +108,22 @@ module.exports = {
         collector.on("end", async collected => {
             await reply.edit({ components: [row(true)] })
         });
+    },
+
+    reply: {
+        async send(message, type, content) {
+            if(!type) {
+                return message.channel.send(content);
+            } else {
+                return message.editReply(content);
+            }
+        },
+        async reply(message, type, content) {
+            if(!type) {
+                return message.reply(content);
+            } else {
+                return message.editReply(content);
+            }
+        }
     }
 }

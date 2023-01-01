@@ -1,15 +1,50 @@
 const fs = require("fs");
 
-const vids = fs.readdirSync("./assets/videos/").filter(file => file.endsWith(".mp4"));
+const name = "fireforce";
+const desc = "Fire goes brrrr";
 
 module.exports = {
-    name: "fireforce",
+    name: name,
     aliases: ["inferno"],
-    description: "Fire goes brrrr",
+    description: desc,
     usage: "fireforce",
-    execute(message){
+    slash: {
+        name: name,
+        description: desc
+    },
+
+    async interactionInit(interaction) {
+        await interaction.deferReply();
+
+        this.execute(interaction, 1)
+    },
+
+    async msgInit(message) {
+        this.execute(message, 0);
+    },
+
+    execute(message, type){
+        const vids = fs.readdirSync("./assets/videos/").filter(file => file.endsWith(".mp4"));
+
         const random = Math.floor(Math.random() * vids.length);
 
-        message.channel.send({ files: [`./assets/videos/${vids[random]}`] });
+        this.reply.send(message, type, { files: [`./assets/videos/${vids[random]}`] });
+    },
+
+    reply: {
+        async send(message, type, content) {
+            if(!type) {
+                return message.channel.send(content);
+            } else {
+                return message.editReply(content);
+            }
+        },
+        async reply(message, type, content) {
+            if(!type) {
+                return message.reply(content);
+            } else {
+                return message.editReply(content);
+            }
+        }
     }
 }

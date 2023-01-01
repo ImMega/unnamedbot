@@ -1,36 +1,71 @@
 const { EmbedBuilder } = require("discord.js");
 const jikan = require("@mateoaranda/jikanjs");
 const profileModel = require("../../models/profileSchema");
+const { ApplicationCommandOptionType } = require("discord.js");
+
+const name = "malprofile";
+const desc = "Searches for a MAL user";
 
 module.exports = {
-    name: "malprofile",
+    name: name,
     aliases: ["malpf", "maluser"],
-    description: "Searches for a MAL user",
+    description: desc,
     usage: "malprofile <username>",
-    async execute(message, args) {
-        if(!args[0]) {
-            const profile = await profileModel.findOne({ userId: message.author.id });
+    slash: {
+        name: name,
+        description: desc,
+        options: [
+            {
+                name: "username",
+                type: ApplicationCommandOptionType.String,
+                description: "The username of the MAL profile"
+            },
+            {
+                name: "user",
+                type: ApplicationCommandOptionType.User,
+                description: "The Discord user"
+            }
+        ]
+    },
 
-            if(!profile || !profile.mal) return message.reply("You have to search for a user or bind your own profile!")
+    async interactionInit(interaction) {
+        await interaction.deferReply();
 
-            await this.malGetAndSendEmbed(message, profile.mal);
+        const id = interaction.user.id;
+        const mention = interaction.options.getUser("user");
+        const query = interaction.options.getString("username");
+
+        this.execute(interaction, id, mention, query, 1)
+    },
+
+    async msgInit(message, args) {
+        const id = message.author.id;
+        const mention = message.mentions.users.first();
+        const query = args[0];
+
+        this.execute(message, id, mention, query, 0);
+    },
+
+    async execute(message, id, mention, query, type) {
+        if(!query) {
+            const profile = await profileModel.findOne({ userId: id });
+
+            if(!profile || !profile.mal) return this.reply.reply(message, type, { content: "You have to search for a user or bind your own profile!" });
+
+            await this.malGetAndSendEmbed(message, profile.mal, type);
         } else {
-            const mention = message.mentions.users.first();
-
             if(mention) {
                 const profile = await profileModel.findOne({ userId: mention.id });
 
-                if(!profile || !profile.mal) return message.reply("That person doesn't have their MAL binded.");
+                if(!profile || !profile.mal) return this.reply.reply(message, type, { content: "That person doesn't have their MAL binded." });
 
-                await this.malGetAndSendEmbed(message, profile.mal);
+                await this.malGetAndSendEmbed(message, profile.mal, type);
             } else {
-                const query = args[0];
-
-                await this.malGetAndSendEmbed(message, query);
+                await this.malGetAndSendEmbed(message, query, type);
             }
         }
     },
-    async malGetAndSendEmbed(message, query) {
+    async malGetAndSendEmbed(message, query, type) {
         try {
             const user = await jikan.loadUser(query, "full");
 
@@ -49,12 +84,29 @@ module.exports = {
             ])
             .setFooter({ text: "Powered by: myanimelist.net" })
 
-            message.channel.send({ embeds: [embed] });
+            this.reply.send(message, type, { embeds: [embed] });
         } catch(err) {
             console.log(err);
             
-            if(err.toString().includes("404")) return message.reply("Sorry, couldn't find anything...");
-            if(err.toString().includes("Idle timeout reached")) return message.reply("Sorry, MAL kinda didn't respond on time. You can try again if you want");
+            if(err.toString().includes("404")) return this.reply.reply(message, type, { content: "Sorry, couldn't find anything..." });
+            if(err.toString().includes("Idle timeout reached")) return this.reply.reply(message, type, { content: "Sorry, MAL kinda didn't respond on time. You can try again if you want" });
+        }
+    },
+
+    reply: {
+        async send(message, type, content) {
+            if(!type) {
+                return message.channel.send(content);
+            } else {
+                return message.editReply(content);
+            }
+        },
+        async reply(message, type, content) {
+            if(!type) {
+                return message.reply(content);
+            } else {
+                return message.editReply(content);
+            }
         }
     }
 }

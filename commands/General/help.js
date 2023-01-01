@@ -1,13 +1,39 @@
-const { client } = require("../../index");
-const { EmbedBuilder } = require("discord.js");
+const { EmbedBuilder, ApplicationCommandOptionType } = require("discord.js");
+
+const name = "help";
+const desc = "Shows command list or information about a specific command";
 
 module.exports = {
-    name: "help",
+    name: name,
     aliases: ["?"],
-    description: "Shows command list or information about a specific command",
+    description: desc,
     usage: "help [command]",
-    execute(message, args) {
-        if(!args[0]) {
+    slash: {
+        name: name,
+        description: desc,
+        options: [
+            {
+                name: "command",
+                type: ApplicationCommandOptionType.String,
+                description: "This bot's command"
+            }
+        ]
+    },
+
+    async interactionInit(interaction) {
+        await interaction.deferReply();
+
+        this.execute(interaction, interaction.options.getString("command"), 1);
+    },
+
+    async msgInit(message, args) {
+        this.execute(message, args[0], 0);
+    },
+
+    execute(message, command, type) {
+        const { client } = require("../../index");
+        
+        if(!command) {
             const embed = new EmbedBuilder()
             .setColor(message.guild.members.me.displayHexColor)
             .setTitle(`${client.user.username} Command List`)
@@ -17,11 +43,13 @@ module.exports = {
 
             client.categories.forEach(cat => embed.addFields({ name: cat.name, value: `\`${cat.cmds.join("` - `")}\`` }));
 
-            message.channel.send({ embeds: [embed] })
+            this.reply.send(message, type, { embeds: [embed] });
         } else {
-            const cmd = client.commands.get(args[0]) || client.commands.get(client.cmdaliases.get(args[0]));
+            const cmd = client.commands.get(command) || client.commands.get(client.cmdaliases.get(command));
 
-            message.channel.send({
+            if(!cmd) return this.reply.reply(message, type, { content: `I do not have that \`${command}\` command, sorry.` });
+
+            this.reply.send(message, type, {
                 embeds: [
                     new EmbedBuilder()
                     .setColor(message.guild.members.me.displayHexColor)
@@ -30,6 +58,23 @@ module.exports = {
                     .setThumbnail(client.user.avatarURL({ dynamic: true }))
                 ]
             });
+        }
+    },
+
+    reply: {
+        async send(message, type, content) {
+            if(!type) {
+                return message.channel.send(content);
+            } else {
+                return message.editReply(content);
+            }
+        },
+        async reply(message, type, content) {
+            if(!type) {
+                return message.reply(content);
+            } else {
+                return message.editReply(content);
+            }
         }
     }
 }

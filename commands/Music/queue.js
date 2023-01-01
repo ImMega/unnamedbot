@@ -1,18 +1,37 @@
-const { distube } = require("../../index");
 const { ActionRowBuilder, ButtonBuilder } = require("discord.js");
 
+const name = "queue";
+const desc = "Shows the queue";
+
 module.exports = {
-    name: "queue",
+    name: name,
     aliases: ["q"],
-    description: "Shows the queue",
+    description: desc,
     usage: "queue",
-    async execute(message, args){
-        if(!message.member.voice.channel) return message.reply("Well, you must be in a voice channel to do that.")
-        if(message.guild.members.me.voice.channel && message.guild.members.me.voice.channelId != message.member.voice.channelId) return message.reply("You must be in the same voice channel as me!");
+    slash: {
+        name: name,
+        description: desc
+    },
+
+    async interactionInit(interaction) {
+        await interaction.deferReply();
+
+        this.execute(interaction, 1);
+    },
+
+    async msgInit(message) {
+        this.execute(message, 0);
+    },
+
+    async execute(message, type){
+        const { distube } = require("../../index");
+
+        if(!message.member.voice.channel) return this.reply.reply(message, type, { content: "Well, you must be in a voice channel to do that." });
+        if(message.guild.members.me.voice.channel && message.guild.members.me.voice.channelId != message.member.voice.channelId) return this.reply.reply(message, type, { content: "You must be in the same voice channel as me!" });
 
         const queue = distube.getQueue(message);
 
-        if(!queue) return message.reply("There is nothing playing.");
+        if(!queue) return this.reply.reply(message, type, { content: "There is nothing playing." });
 
         const songsArray = queue.songs.map((song, i) =>{
             return `[${i + 1}] ${song.name} - ${song.formattedDuration}${i == 0 ? " --- [Now Playing]" : ""}`
@@ -25,12 +44,12 @@ module.exports = {
             );
         }
 
-        const reply = await message.channel.send({
+        const reply = await this.reply.send(message, type, {
             content: `\`\`\`ini\n${songsArray.slice(0, 8).join("\n")}\`\`\``,
             components: [row(0, songsArray.length)]
         });
 
-        const filter = i => (i.customId == "up" || i.customId == "down") && i.user.id == message.author.id;
+        const filter = i => (i.customId == "up" || i.customId == "down") && i.user.id == message.member.user.id;
 
         const collector = await reply.createMessageComponentCollector({ filter, time: 15000 });
 
@@ -58,5 +77,22 @@ module.exports = {
                 components: [row(false)]
             });
         });
+    },
+
+    reply: {
+        async send(message, type, content) {
+            if(!type) {
+                return message.channel.send(content);
+            } else {
+                return message.editReply(content);
+            }
+        },
+        async reply(message, type, content) {
+            if(!type) {
+                return message.reply(content);
+            } else {
+                return message.editReply(content);
+            }
+        }
     }
 }

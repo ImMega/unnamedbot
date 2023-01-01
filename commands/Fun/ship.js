@@ -1,26 +1,68 @@
-const { EmbedBuilder } = require("discord.js");
+const { EmbedBuilder, ApplicationCommandOptionType } = require("discord.js");
+
+const name = "ship";
+const desc = "Uhhh... Ship someone?";
 
 module.exports = {
-    name: "ship",
+    name: name,
     aliases: [],
-    description: "Uhhh... Ship someone?",
+    description: desc,
     usage: "ship [mention or something]",
-    async execute(message, args) {
-        if(!args[0]){console.log(message.member.nickname); console.log((await message.guild.members.fetch()).first())
+    slash: {
+        name: name,
+        description: desc,
+        options: [
+            {
+                name: "name",
+                type: ApplicationCommandOptionType.String,
+                description: "The name of... uhhh whoever ig?"
+            },
+            {
+                name: "name2",
+                type: ApplicationCommandOptionType.String,
+                description: "The name of other... uhh whoever ig?"
+            }
+        ]
+    },
+
+    async interactionInit(interaction) {
+        await interaction.deferReply();
+
+        const name = await this.getName(interaction, interaction.options.getString("name"));
+        const name1 = await this.getName(interaction, interaction.options.getString("name2"));
+        const username = interaction.user.username;
+        const nickname = interaction.member.nickname;
+
+        this.execute(interaction, name, name1, username, nickname, 1);
+    },
+
+    async msgInit(message, args) {
+        const name = await this.getName(message, args[0]);
+        const name1 = await this.getName(message, args[1]);
+        const username = message.author.username;
+        const nickname = message.member.nickname;
+
+        this.execute(message, name, name1, username, nickname, 0);
+    },
+
+    async getName(message, input) {
+        if(!input) return;
+        if(!input.includes("<@") && !input.includes(">")) return input;
+
+        const member = await message.guild.members.fetch(input.replace("<@", "").replace(">", ""));
+
+        return member.nickname == null ? member.user.username : member.nickname;
+    },
+
+    async execute(message, name, name1, username, nickname, type) {
+        if(!name){
             const members = await message.guild.members.fetch();
         
-            const humans = members.filter((member) => { return member.user.bot != true }).map((member) => {
-                if(member.nickname != null)
-                {
-                    return member.nickname;
-                }
-                else
-                {
-                    return member.user.username;
-                }
-            })
+            const humans = members.filter((member) => { return member.user.bot != true && member.user.id != message.member.user.id }).map((member) => {
+                return member.nickname == null ? member.user.username : member.nickname;
+            });
 
-            const name = message.member.nickname == null ? message.author.username : message.member.nickname;
+            const name = nickname == null ? username : nickname;
 
             const random = Math.floor(Math.random() * humans.length);
 
@@ -29,7 +71,7 @@ module.exports = {
             const bar = await this.progressBar(match);
             const text = await this.text(match);
 
-            message.channel.send({
+            this.reply.send(message, type, {
                 content: `💗 **MATCHMAKING** 💗\n🔻 _\`${name}\`_\n🔺 _\`${humans[random]}\`_`,
                 embeds: [
                     new EmbedBuilder()
@@ -37,65 +79,42 @@ module.exports = {
                     .setDescription("<:name:997088413687758888> **" + name.slice(0, (name.length/2).toFixed(0)) + humans[random].slice(((humans[random].length/2).toString().includes(".5") ? (humans[random].length/2).toFixed(0) - 1 : (humans[random].length/2).toFixed(0)))
                                     + `**\n**${match}%** ` + `${bar.join("")}` + ` ${text}`)
                 ]
-            })
+            });
         }
         else
         {
-            if(!message.mentions.members.first())
+            if(name1)
             {
-                if(args[1])
-                {
-                    const match = Math.floor(Math.random() * 100);
-
-                    const bar = await this.progressBar(match);
-                    const text = await this.text(match);
-        
-                    message.channel.send({
-                        content: `💗 **MATCHMAKING** 💗\n🔻 _\`${args[0]}\`_\n🔺 _\`${args[1]}\`_`,
-                        embeds: [
-                            new EmbedBuilder()
-                            .setColor(0xFF69B4)
-                            .setDescription("<:name:997088413687758888> **" + args[0].slice(0, (args[0].length/2).toFixed(0)) + args[1].slice(((args[1].length/2).toString().includes(".5") ? (args[1].length/2).toFixed(0) - 1 : (args[1].length/2).toFixed(0)))
-                                            + `**\n**${match}%** ` + `${bar.join("")}` + ` ${text}`)
-                        ]
-                    })
-                }
-                else
-                {
-                    const name = message.member.nickname == null ? message.author.username : message.member.nickname;
-
-                    const match = Math.floor(Math.random() * 100);
-
-                    const bar = await this.progressBar(match);
-                    const text = await this.text(match);
-        
-                    message.channel.send({
-                        content: `💗 **MATCHMAKING** 💗\n🔻 _\`${name}\`_\n🔺 _\`${args[0]}\`_`,
-                        embeds: [
-                            new EmbedBuilder()
-                            .setColor(0xFF69B4)
-                            .setDescription("<:name:997088413687758888> **" + name.slice(0, (name.length/2).toFixed(0)) + args[0].slice(((args[0].length/2).toString().includes(".5") ? (args[0].length/2).toFixed(0) - 1 : (args[0].length/2).toFixed(0)))
-                                            + `**\n**${match}%** ` + `${bar.join("")}` + ` ${text}`)
-                        ]
-                    })
-                }
-            }
-            else
-            {
-                const name = message.member.nickname == null ? message.author.username : message.member.nickname;
-                const mention = message.mentions.members.first().nickname == null ? message.mentions.users.first().username : message.mentions.members.first().nickname;
-                
                 const match = Math.floor(Math.random() * 100);
 
                 const bar = await this.progressBar(match);
                 const text = await this.text(match);
     
-                message.channel.send({
-                    content: `💗 **MATCHMAKING** 💗\n🔻 _\`${name}\`_\n🔺 _\`${mention}\`_`,
+                this.reply.send(message, type, {
+                    content: `💗 **MATCHMAKING** 💗\n🔻 _\`${name}\`_\n🔺 _\`${name1}\`_`,
                     embeds: [
                         new EmbedBuilder()
                         .setColor(0xFF69B4)
-                        .setDescription("<:name:997088413687758888> **" + name.slice(0, (name.length/2).toFixed(0)) + mention.slice(((mention.length/2).toString().includes(".5") ? (mention.length/2).toFixed(0) - 1 : (mention.length/2).toFixed(0)))
+                        .setDescription("<:name:997088413687758888> **" + name.slice(0, (name.length/2).toFixed(0)) + name1.slice(((name1.length/2).toString().includes(".5") ? (name1.length/2).toFixed(0) - 1 : (name1.length/2).toFixed(0)))
+                                        + `**\n**${match}%** ` + `${bar.join("")}` + ` ${text}`)
+                    ]
+                });
+            }
+            else
+            {
+                const name2 = nickname == null ? username : nickname;
+
+                const match = Math.floor(Math.random() * 100);
+
+                const bar = await this.progressBar(match);
+                const text = await this.text(match);
+    
+                this.reply.send(message, type, {
+                    content: `💗 **MATCHMAKING** 💗\n🔻 _\`${name2}\`_\n🔺 _\`${name}\`_`,
+                    embeds: [
+                        new EmbedBuilder()
+                        .setColor(0xFF69B4)
+                        .setDescription("<:name:997088413687758888> **" + name2.slice(0, (name.length/2).toFixed(0)) + name.slice(((name.length/2).toString().includes(".5") ? (name.length/2).toFixed(0) - 1 : (name.length/2).toFixed(0)))
                                         + `**\n**${match}%** ` + `${bar.join("")}` + ` ${text}`)
                     ]
                 });
@@ -147,5 +166,22 @@ module.exports = {
         if(percent == 100) text = "PERFECT! ❣";
         
         return text;
+    },
+
+    reply: {
+        async send(message, type, content) {
+            if(!type) {
+                return message.channel.send(content);
+            } else {
+                return message.editReply(content);
+            }
+        },
+        async reply(message, type, content) {
+            if(!type) {
+                return message.reply(content);
+            } else {
+                return message.editReply(content);
+            }
+        }
     }
 }
