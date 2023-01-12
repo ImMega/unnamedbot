@@ -48,11 +48,19 @@ module.exports = {
 
     async execute(message, id, mention, query, type) {
         if(!query) {
-            const profile = await profileModel.findOne({ userId: id });
+            if(mention) {
+                const profile = await profileModel.findOne({ userId: mention.id });
 
-            if(!profile || !profile.mal) return this.reply.reply(message, type, { content: "You have to search for a user or bind your own profile!" });
+                if(!profile || !profile.mal) return this.reply.reply(message, type, { content: "That person doesn't have their MAL binded." });
 
-            await this.malGetAndSendEmbed(message, profile.mal, type);
+                await this.malGetAndSendEmbed(message, profile.mal, type);
+            } else {
+                const profile = await profileModel.findOne({ userId: id });
+
+                if(!profile || !profile.mal) return this.reply.reply(message, type, { content: "You have to search for a user or bind your own profile!" });
+    
+                await this.malGetAndSendEmbed(message, profile.mal, type);
+            }
         } else {
             if(mention) {
                 const profile = await profileModel.findOne({ userId: mention.id });
