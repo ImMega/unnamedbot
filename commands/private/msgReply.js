@@ -4,7 +4,7 @@ module.exports = {
     name: "msgReply",
     aliases: ["reply"],
     description: "Reply to a message as a bot (BOT OWNER ONLY)",
-    execute(message, args){
+    msgInit(message, args){
         if(!message.author.id == client.owner || !args[1]) return;
         message.delete();
 
