@@ -30,7 +30,7 @@ module.exports = {
             embeds: [
                 new EmbedBuilder()
                 .setColor(message.guild.members.me.displayHexColor)
-                .setDescription(`${message.member.user} hid away... No one shall know where he is.`)
+                .setDescription(`${message.member.user} hid away... No one shall know where they are.`)
                 .setImage(gif)
                 .setFooter({ text: "Gif provided by: kawaii.red" })
             ]
