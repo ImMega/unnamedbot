@@ -5,7 +5,10 @@ const fs = require("fs");
 const AniList = require("anilist-node");
 const mongoose = require("mongoose");
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates] });
+const client = new Client({
+    partials: ["MESSAGE", "CHANNEL", "REACTION"],
+    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMessageReactions]
+});
 const anilist = new AniList();
 
 client.prefix = "$";
@@ -23,3 +26,7 @@ mongoose.connect(process.env.MONGO)
 .catch(err => console.log(err));
 
 require("./randomActivities")(client, ActivityType);
+
+// client.on("messageReactionAdd", async (reaction, user) => {
+//     console.log(reaction.emoji);
+// })
