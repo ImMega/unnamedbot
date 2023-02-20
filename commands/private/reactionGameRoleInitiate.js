@@ -6,6 +6,8 @@ module.exports = {
     description: "",
     usage: "",
     async msgInit(message) {
+        if(!message.author.id == client.owner && !message.author.id == "421021542496075777") return;
+
         message.delete();
         
         const msg = await message.channel.send({

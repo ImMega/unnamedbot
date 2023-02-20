@@ -96,8 +96,13 @@ module.exports = {
         } catch(err) {
             console.log(err);
             
-            if(err.toString().includes("404")) return this.reply.reply(message, type, { content: "Sorry, couldn't find anything..." });
-            if(err.toString().includes("Idle timeout reached")) return this.reply.reply(message, type, { content: "Sorry, MAL kinda didn't respond on time. You can try again if you want" });
+            if(err.toString().includes("404")) {
+                return this.reply.reply(message, type, { content: "Sorry, couldn't find anything..." });
+            } else if(err.toString().includes("Idle timeout reached")) {
+                return this.reply.reply(message, type, { content: "Sorry, MAL kinda didn't respond on time. You can try again if you want" });
+            } else {
+                return this.reply.reply(message, type, { content: "Sorry, some error occured so I was unable to fetch your MAL..." });
+            }
         }
     },
 

@@ -26,7 +26,3 @@ mongoose.connect(process.env.MONGO)
 .catch(err => console.log(err));
 
 require("./randomActivities")(client, ActivityType);
-
-// client.on("messageReactionAdd", async (reaction, user) => {
-//     console.log(reaction.emoji);
-// })
