@@ -7,7 +7,7 @@ module.exports = {
     description: "",
     usage: "",
     async msgInit(message) {
-        if(!message.author.id == client.owner && !message.author.id == "421021542496075777") return;
+        if(message.author.id != client.ownerId && message.author.id != "421021542496075777") return;
 
         message.delete();
         

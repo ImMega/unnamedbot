@@ -5,7 +5,7 @@ module.exports = {
     aliases: [],
     description: "Sends message as a bot (BOT OWNER ONLY)",
     msgInit(message, args){
-        if(!message.author.id == client.owner || !args[1]) return;
+        if(message.author.id != client.ownerId || !args[1]) return;
 
         const channelId = args.shift();
         const msg = args.join(" ");
