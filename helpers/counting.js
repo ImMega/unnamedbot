@@ -27,9 +27,47 @@ module.exports = async (message) => {
     if(isNaN(num)) return message.delete();
     if(num != lastCount || message.author.id == lastMsg.author.id) return require("../helpers/wrongCountPunish")(message, lastCount, num, message.author.id == lastMsg.author.id);
 
+    let serverData;
+    try {
+        serverData = await serverModel.findOne({ serverId: message.guild.id });
+
+        if(!serverData) {
+            const server = await serverModel.create({
+                serverId: message.guild.id
+            });
+
+            server.save();
+        }
+
+        serverData = await serverModel.findOne({ serverId: message.guild.id });
+    } catch(err) {
+        console.log(err);
+    }
+
     await serverModel.findOneAndUpdate({
         serverId: message.guild.id
     }, {
         count: num
+    });
+
+    if(!serverData.members.find(m => m.userId == message.author.id)) await serverModel.findOneAndUpdate({ serverId: message.guild.id }, {
+        $push: {
+            members: {
+                "userId": message.author.id,
+                "count": {
+                    "correct": 0,
+                    "wrong": 0
+                }
+            }
+        }
+    });
+
+    await serverModel.findOneAndUpdate({
+        "serverId": message.guild.id,
+        "members.userId": message.author.id
+    }, {
+        $inc: {
+            "members.$.count.correct": 1
+        }
     });
 }
