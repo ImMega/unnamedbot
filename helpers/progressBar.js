@@ -10,5 +10,8 @@ module.exports = async (current, total) => {
                 }
             }
             
-            return barArray;
+            return {
+                progress: progress * 100,
+                barArray: barArray
+            }
 }
