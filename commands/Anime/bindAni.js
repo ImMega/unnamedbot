@@ -1,5 +1,4 @@
 const profileModel = require("../../models/profileSchema");
-const { ApplicationCommandOptionType } = require("discord.js");
 
 const name = "albind";
 const desc = "Binds your AniList profile. Useful so you don't have to type it every time you want to check it";
@@ -9,19 +8,6 @@ module.exports = {
     aliases: [],
     description: desc,
     usage: "albind <AniList username>",
-    slash: {
-        name: name,
-        description: desc,
-        options: [
-            {
-                name: "username",
-                type: ApplicationCommandOptionType.String,
-                description: "Your AniList username",
-                required: true
-            }
-        ]
-    },
-
     async interactionInit(interaction) {
         await interaction.deferReply();
 
@@ -39,7 +25,9 @@ module.exports = {
     },
 
     async execute(message, id, query, type) {
-        const { anilist } = require("../../index");
+        const { client, anilist } = require("../../index");
+
+        if(!client.dbCmds) return this.reply.reply(message, type, { content: "Sorry, we have problems with the database so all functionality related to database is temporarily disabled.\nTho you can still search for AniList users, so that's something!" });
         
         if(!query) return this.reply.reply(message, type, { content: "You need to enter your AniList username!" });
 
@@ -71,7 +59,11 @@ module.exports = {
             await profileModel.findOneAndUpdate({ userId: id }, { al: user.name });
 
             this.reply.reply(message, type, { content: `You're now successfully binded to your AniList profile **${user.name}**!` });
-        } catch(err) { console.log(err) }
+        } catch(err) {
+            require("../../helpers/errorLogging")(message, err);
+
+            return this.reply.reply(message, type, { content: "Sorry, some error occured so I was unable to fetch your AniList..." });
+        }
     },
 
     reply: require("../../helpers/reply")

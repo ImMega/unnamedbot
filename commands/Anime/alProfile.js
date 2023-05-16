@@ -1,4 +1,4 @@
-const { EmbedBuilder, ApplicationCommandOptionType } = require("discord.js");
+const { EmbedBuilder } = require("discord.js");
 const profileModel = require("../../models/profileSchema");
 
 const name = "alprofile";
@@ -9,23 +9,6 @@ module.exports = {
     aliases: ["alpf", "aluser"],
     description: desc,
     usage: "alprofile <username>",
-    slash: {
-        name: name,
-        description: desc,
-        options: [
-            {
-                name: "username",
-                type: ApplicationCommandOptionType.String,
-                description: "The username of the AniList profile"
-            },
-            {
-                name: "user",
-                type: ApplicationCommandOptionType.User,
-                description: "The Discord user"
-            }
-        ]
-    },
-
     async interactionInit(interaction) {
         await interaction.deferReply();
 
@@ -45,22 +28,34 @@ module.exports = {
     },
 
     async execute(message, id, mention, query, type) {
-        if(!query) {
-            const profile = await profileModel.findOne({ userId: id });
+        const { client } = require("../../index");
 
-            if(!profile || !profile.al) return this.reply.reply(message, type, { content: "You have to search for a user or bind your own profile!" });
+        try {
+            if(!query) {
+                if(!client.dbCmds) return this.reply.reply(message, type, { content: "Sorry, we have problems with the database so all functionality related to database is temporarily disabled.\nTho you can still search for AniList users, so that's something!" });
 
-            await this.alGetAndSendEmbed(message, profile.al, type);
-        } else {
-            if(mention) {
-                const profile = await profileModel.findOne({ userId: mention.id });
-
-                if(!profile || !profile.al) return this.reply.reply(message, type, { content: "That person doesn't have their AniList binded." });
-
-                await this.alGetAndSendEmbed(message, profile.mal, type);
+                const profile = await profileModel.findOne({ userId: id });
+    
+                if(!profile || !profile.al) return this.reply.reply(message, type, { content: "You have to search for a user or bind your own profile!" });
+    
+                await this.alGetAndSendEmbed(message, profile.al, type);
             } else {
-                await this.alGetAndSendEmbed(message, query, type);
+                if(mention) {
+                    if(!client.dbCmds) return this.reply.reply(message, type, { content: "Sorry, we have problems with the database so all functionality related to database is temporarily disabled.\nTho you can still search for AniList users, so that's something!" });
+                    
+                    const profile = await profileModel.findOne({ userId: mention.id });
+    
+                    if(!profile || !profile.al) return this.reply.reply(message, type, { content: "That person doesn't have their AniList binded." });
+    
+                    await this.alGetAndSendEmbed(message, profile.mal, type);
+                } else {
+                    await this.alGetAndSendEmbed(message, query, type);
+                }
             }
+        } catch(err) {
+            require("../../helpers/errorLogging")(message, err);
+
+            return this.reply.reply(message, type, { content: "Sorry, some error occured so I was unable to fetch your AniList..." });
         }
     },
 
