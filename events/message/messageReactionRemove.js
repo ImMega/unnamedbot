@@ -5,6 +5,8 @@ const lol = "1073627875485421619";
 const mc = "1073628023867314186";
 const ow = "1073626831942590555";
 const valo = "1073628427204169808";
+const forhonor = "1103048329052569640";
+const dl = "1103048604094050386";
 
 module.exports = async (client, reaction, user) => {
     const { message, emoji } = reaction;
@@ -17,6 +19,8 @@ module.exports = async (client, reaction, user) => {
         const mcRole = message.guild.roles.cache.find(role => role.id === "1042123749773803611");
         const owRole = message.guild.roles.cache.find(role => role.id === "1032290462016491562");
         const valoRole = message.guild.roles.cache.find(role => role.id === "1072855909866414162");
+        const forHonorRole = message.guild.roles.cache.find(role => role.id === "1103032328483242005");
+        const dlRole = message.guild.roles.cache.find(role => role.id === "1103032530254442607");
     
         const member = await message.guild.members.fetch(user.id);
     
@@ -27,5 +31,7 @@ module.exports = async (client, reaction, user) => {
         if(emoji.id == mc) await member.roles.remove(mcRole);
         if(emoji.id == ow) await member.roles.remove(owRole);
         if(emoji.id == valo) await member.roles.remove(valoRole);
+        if(emoji.id == forhonor) await member.roles.remove(forHonorRole);
+        if(emoji.id == dl) await member.roles.remove(dlRole);
     }
 }
