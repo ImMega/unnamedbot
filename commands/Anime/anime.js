@@ -1,7 +1,8 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ApplicationCommandOptionType } = require("discord.js");
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder } = require("discord.js");
+
 const MAL = require("mal-scraper");
 
-const name = "anime";
+const name = "animefind";
 const desc = "Searches for an anime";
 
 module.exports = {
@@ -9,19 +10,6 @@ module.exports = {
     aliases: [],
     description: desc,
     usage: "anime <title>",
-    slash: {
-        name: name,
-        description: desc,
-        options: [
-            {
-                name: "title",
-                type: ApplicationCommandOptionType.String,
-                description: "Title of an anime",
-                required: true
-            }
-        ]
-    },
-
     async interactionInit(interaction) {
         await interaction.deferReply();
 
@@ -43,9 +31,17 @@ module.exports = {
 
         if(!query) return this.reply.reply(message, type, { content: "You have to enter an anime to search", allowedMentions: { repliedUser: false } })
 
-        const anime = await MAL.getInfoFromName(query);
-        const ALsearch = await anilist.searchEntry.anime(anime.title, { sort: ["POPULARITY_DESC"] }, 1, 1);
-        const ALanime = await anilist.media.anime(ALsearch.media[0].id);
+        let anime;
+        let ALsearch;
+        let ALanime;
+
+        try {
+            anime = await MAL.getInfoFromName(query);
+            ALsearch = await anilist.searchEntry.anime(anime.title, { sort: ["POPULARITY_DESC"] }, 1, 1);
+            ALanime = await anilist.media.anime(ALsearch.media[0].id);
+        } catch(err) {
+            return this.reply.reply(message, type, { content: "Sorry, couldn't find an anime you searched for..." })
+        }
 
         let image;
 

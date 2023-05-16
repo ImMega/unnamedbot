@@ -8,19 +8,6 @@ module.exports = {
     aliases: ["char"],
     description: desc,
     usage: "character <name>",
-    slash: {
-        name: name,
-        description: desc,
-        options: [
-            {
-                name: "name",
-                type: ApplicationCommandOptionType.String,
-                description: "Name of the character",
-                required: true
-            }
-        ]
-    },
-
     async interactionInit(interaction) {
         await interaction.deferReply();
 
