@@ -9,11 +9,6 @@ module.exports = {
     aliases: [],
     description: desc,
     usage: "counts",
-    slash: {
-        name: name,
-        description: desc
-    },
-
     async msgInit(message) {
         this.execute(message, 0);
     },
@@ -25,6 +20,10 @@ module.exports = {
     },
 
     async execute(message, type) {
+        const { client } = require("../../index");
+
+        if(!client.dbCmds) return this.reply.reply(message, type, { content: "Sorry, we have problems with the database so all functionality related to database is temporarily disabled." });
+
         let serverData;
         try {
             serverData = await serverModel.findOne({ serverId: message.guild.id });
@@ -40,6 +39,9 @@ module.exports = {
             serverData = await serverModel.findOne({ serverId: message.guild.id });
         } catch(err) {
             console.log(err);
+            require("../../helpers/errorLogging")(message, err);
+
+            return this.reply.reply(message, type, { content: "Sorry, some error occured so I was unable to fetch your counting leaderboard..." });
         }
 
         const row = (page, members, sort) => {
