@@ -1,6 +1,5 @@
 const jikan = require("@mateoaranda/jikanjs");
 const profileModel = require("../../models/profileSchema");
-const { ApplicationCommandOptionType } = require("discord.js");
 
 const name = "malbind";
 const desc = "Binds your MAL profile. Useful so you don't have to type it every time you want to check it";
@@ -10,19 +9,6 @@ module.exports = {
     aliases: [],
     description: desc,
     usage: "malbind <MAL username>",
-    slash: {
-        name: name,
-        description: desc,
-        options: [
-            {
-                name: "username",
-                type: ApplicationCommandOptionType.String,
-                description: "Your MAL username",
-                required: true
-            }
-        ]
-    },
-
     async interactionInit(interaction) {
         await interaction.deferReply();
 
@@ -40,6 +26,10 @@ module.exports = {
     },
 
     async execute(message, id, query, type) {
+        const { client } = require("../../index");
+
+        if(!client.dbCmds) return this.reply.reply(message, type, { content: "Sorry, we have problems with the database so all functionality related to database is temporarily disabled.\nTho you can still search for MAL users, so that's something!" });
+
         if(!query) return this.reply.reply(message, type, { content: "You need to enter your MAL username!" });
 
         let profileData;
@@ -68,7 +58,7 @@ module.exports = {
     
             this.reply.reply(message, type, { content: `You're now successfully binded to your MAL profile **${malUser.data.username}**!` });
         } catch(err) {
-            console.log(err);
+            require("../../helpers/errorLogging")(message, err);
             
             if(err.toString().includes("404")) {
                 return this.reply.reply(message, type, { content: "Sorry, couldn't find anything..." });

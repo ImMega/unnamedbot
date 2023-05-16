@@ -1,7 +1,6 @@
 const { EmbedBuilder } = require("discord.js");
 const jikan = require("@mateoaranda/jikanjs");
 const profileModel = require("../../models/profileSchema");
-const { ApplicationCommandOptionType } = require("discord.js");
 
 const name = "malprofile";
 const desc = "Searches for a MAL user";
@@ -11,23 +10,6 @@ module.exports = {
     aliases: ["malpf", "maluser"],
     description: desc,
     usage: "malprofile <username>",
-    slash: {
-        name: name,
-        description: desc,
-        options: [
-            {
-                name: "username",
-                type: ApplicationCommandOptionType.String,
-                description: "The username of the MAL profile"
-            },
-            {
-                name: "user",
-                type: ApplicationCommandOptionType.User,
-                description: "The Discord user"
-            }
-        ]
-    },
-
     async interactionInit(interaction) {
         await interaction.deferReply();
 
@@ -47,30 +29,44 @@ module.exports = {
     },
 
     async execute(message, id, mention, query, type) {
-        if(!query) {
-            if(mention) {
-                const profile = await profileModel.findOne({ userId: mention.id });
+        const { client } = require("../../index");
 
-                if(!profile || !profile.mal) return this.reply.reply(message, type, { content: "That person doesn't have their MAL binded." });
+        try {
+            if(!query) {
+                if(mention) {
+                    if(!client.dbCmds) return this.reply.reply(message, type, { content: "Sorry, we have problems with the database so all functionality related to database is temporarily disabled.\nTho you can still search for MAL users, so that's something!" });
 
-                await this.malGetAndSendEmbed(message, profile.mal, type);
-            } else {
-                const profile = await profileModel.findOne({ userId: id });
-
-                if(!profile || !profile.mal) return this.reply.reply(message, type, { content: "You have to search for a user or bind your own profile!" });
+                    const profile = await profileModel.findOne({ userId: mention.id });
     
-                await this.malGetAndSendEmbed(message, profile.mal, type);
-            }
-        } else {
-            if(mention) {
-                const profile = await profileModel.findOne({ userId: mention.id });
+                    if(!profile || !profile.mal) return this.reply.reply(message, type, { content: "That person doesn't have their MAL binded." });
+    
+                    await this.malGetAndSendEmbed(message, profile.mal, type);
+                } else {
+                    if(!client.dbCmds) return this.reply.reply(message, type, { content: "Sorry, we have problems with the database so all functionality related to database is temporarily disabled.\nTho you can still search for MAL users, so that's something!" });
 
-                if(!profile || !profile.mal) return this.reply.reply(message, type, { content: "That person doesn't have their MAL binded." });
-
-                await this.malGetAndSendEmbed(message, profile.mal, type);
+                    const profile = await profileModel.findOne({ userId: id });
+    
+                    if(!profile || !profile.mal) return this.reply.reply(message, type, { content: "You have to search for a user or bind your own profile!" });
+        
+                    await this.malGetAndSendEmbed(message, profile.mal, type);
+                }
             } else {
-                await this.malGetAndSendEmbed(message, query, type);
+                if(mention) {
+                    if(!client.dbCmds) return this.reply.reply(message, type, { content: "Sorry, we have problems with the database so all functionality related to database is temporarily disabled.\nTho you can still search for MAL users, so that's something!" });
+                    
+                    const profile = await profileModel.findOne({ userId: mention.id });
+    
+                    if(!profile || !profile.mal) return this.reply.reply(message, type, { content: "That person doesn't have their MAL binded." });
+    
+                    await this.malGetAndSendEmbed(message, profile.mal, type);
+                } else {
+                    await this.malGetAndSendEmbed(message, query, type);
+                }
             }
+        } catch(err) {
+            require("../../helpers/errorLogging")(message, err);
+
+            return this.reply.reply(message, type, { content: "Sorry, some error occured so I was unable to fetch your MAL..." });
         }
     },
     async malGetAndSendEmbed(message, query, type) {
@@ -94,7 +90,7 @@ module.exports = {
 
             this.reply.send(message, type, { embeds: [embed] });
         } catch(err) {
-            console.log(err);
+            require("../../helpers/errorLogging")(message, err);
             
             if(err.toString().includes("404")) {
                 return this.reply.reply(message, type, { content: "Sorry, couldn't find anything..." });
