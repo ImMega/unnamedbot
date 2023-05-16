@@ -4,10 +4,8 @@ module.exports = async (message, required, inputed, same) => {
     try {
         message.delete();
     } catch(err) {
-        console.log(err);
+        require("../helpers/errorLogging")(message, err);
     }
-
-    const dm = await message.author.createDM(true);
 
     let last = required;
     last--;
@@ -15,7 +13,12 @@ module.exports = async (message, required, inputed, same) => {
     const wrongCount = `Learn how to count b-baka!!! After **${last}** comes **${required}**, not **${inputed}**!`;
     const samePerson = `Oi! Wait for your turn to count!!!`;
 
-    dm.send(same == true ? samePerson : wrongCount);
+    try {
+        const dm = await message.author.createDM(true);
+        dm.send(same == true ? samePerson : wrongCount);
+    } catch(err) {
+        require("../helpers/errorLogging")(message, err);
+    }
 
     let serverData;
     try {

@@ -1,4 +1,5 @@
 const serverModel = require("../models/serverSchema");
+const fs = require("fs");
 
 module.exports = async (message) => {
     const lastMsg = (await message.channel.messages.fetch({ limit: 1, before: message.id })).first();
@@ -8,8 +9,12 @@ module.exports = async (message) => {
 
     if(lastArgs.length == 1 && isNaN(lastCount) && message.content == 1) return;
     if(lastArgs.length == 1 && isNaN(lastCount) && message.content > 1) {
-        message.delete();
-        message.author.createDM().send(`You start with 1 not ${message.content}!!!`);
+        try {
+            message.delete();
+            message.author.createDM().send(`You start with 1 not ${message.content}!!!`);
+        } catch(err) {
+            require("../helpers/errorLogging")(message, err);
+        }
         return;
     }
 
@@ -24,7 +29,13 @@ module.exports = async (message) => {
 
     if(args.length > 1) num = await args.find(s => s == lastCount)
 
-    if(isNaN(num)) return message.delete();
+    if(isNaN(num)) {
+        try {
+            message.delete();
+        } catch(err) {
+            require("../helpers/errorLogging")(message, err);
+        }
+    }
     if(num != lastCount || message.author.id == lastMsg.author.id) return require("../helpers/wrongCountPunish")(message, lastCount, num, message.author.id == lastMsg.author.id);
 
     let serverData;
