@@ -5,6 +5,8 @@ module.exports = async (client, interaction) => {
 
     client.commands.get(interaction.commandName).interactionInit(interaction);
 
+    if(!client.dbCmds) return;
+
     let serverData;
     try {
         serverData = await serverModel.findOne({ serverId: interaction.guild.id });

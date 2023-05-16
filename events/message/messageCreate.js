@@ -1,8 +1,11 @@
 const { EmbedBuilder } = require("discord.js");
+const fs = require("fs");
 
 const serverModel = require("../../models/serverSchema");
 
-const checkCount = async (message) => {
+const checkCount = async (client, message) => {
+    if(!client.dbCmds) return;
+
     let serverData = await serverModel.findOne({ serverId: message.guild.id });
 
     if(!serverData || !serverData.countChId) return;
@@ -28,7 +31,7 @@ module.exports = async (client, message) => {
     }
 
     if(client.developing && message.author.id != "470277450551656459") return;
-    if(message.guild) checkCount(message);
+    if(message.guild) checkCount(client, message);
 
     if(!message.content.startsWith(client.prefix) || message.author.bot) return;
 
@@ -39,6 +42,7 @@ module.exports = async (client, message) => {
 
     if(cmd) cmd.msgInit(message, args);
 
+    if(!client.dbCmds) return;
 
     let serverData;
     try {
